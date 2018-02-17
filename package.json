@@ -6,15 +6,13 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "clean": "rm -Rf .cache/ dist/ | echo ''",
+    "predev": "yarn run clean",
     "dev": "parcel index.html"
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
-    "babel-cli": "^6.26.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
-    "babel-preset-env": "^1.6.1",
-    "babel-template": "^6.26.0",
-    "babel-types": "^6.26.0",
     "parcel-bundler": "^1.6.1",
     "prettier": "^1.10.2",
     "tslint": "^5.9.1",

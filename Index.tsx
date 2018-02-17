@@ -19,4 +19,6 @@ const view = (state, actions) => (
   </div>
 );
 
+console.log(message); // tslint:disable-line
+
 app(initialState, appActions, view, document.body);
