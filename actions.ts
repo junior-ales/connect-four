@@ -42,17 +42,33 @@ const updateCell = (player: AppState['player']) => (cell?: CellValue): CellValue
     .getOrElse(null);
 };
 
+const sortCellsByColAndRow = (cells: CellValue[]) =>
+  R.sortWith<CellValue>([R.ascend(R.prop('col')), R.ascend(R.prop('row'))], cells);
+
 // TODO Folktale maybe.fold is wrongly declared. As soon as it is
 // fixed change this to value.fold(R.always(0), R.idendity)
 const cellValueOrDefault = (cell: CellValue): 0 | PlayerId =>
   cell.value.matchWith({ Just: data => data.value, Nothing: (): 0 => 0 });
 
-const orderByRow: (cells: CellValue[]) => string = R.compose(R.join(''), R.map(cellValueOrDefault));
-
-const orderByColumn: (cells: CellValue[]) => string = R.compose(
+// the cells are ordered by row so we just need to get their values here
+const allCellValues: (cells: CellValue[]) => string = R.compose(
   R.join(''),
-  R.map(cellValueOrDefault),
-  cells => R.sortWith<CellValue>([R.ascend(R.prop('col')), R.ascend(R.prop('row'))], cells)
+  R.map(cellValueOrDefault)
+);
+
+const cellValuesOrderedByColumn: (cells: CellValue[]) => string = R.compose(
+  allCellValues,
+  sortCellsByColAndRow
+);
+
+const cellValuesOrderedByTopDownDiagonal: (cells: CellValue[]) => string = R.compose(
+  cellValuesOrderedByColumn,
+  R.map(cell => (cell.row === 0 ? cell : { ...cell, col: cell.col - cell.row }))
+);
+
+const cellValuesOrderedByBottomUpDiagonal: (cells: CellValue[]) => string = R.compose(
+  cellValuesOrderedByColumn,
+  R.map(cell => (cell.row === 0 ? cell : { ...cell, col: cell.col + cell.row }))
 );
 
 const matchWinner: (values: string) => Maybe<PlayerId[]> = R.cond([
@@ -61,12 +77,12 @@ const matchWinner: (values: string) => Maybe<PlayerId[]> = R.cond([
   [R.T, () => maybe.Nothing()]
 ]);
 
-const isThereWinner = (cells: CellValue[]): AppState['winner'] => {
-  const colWinner = matchWinner(orderByColumn(cells));
-  const rowWinner = matchWinner(orderByRow(cells));
-
-  return colWinner.concat(rowWinner).map(playerIds => R.head(playerIds));
-};
+const isThereWinner = (cells: CellValue[]): AppState['winner'] =>
+  matchWinner(allCellValues(cells))
+    .concat(matchWinner(cellValuesOrderedByColumn(cells)))
+    .concat(matchWinner(cellValuesOrderedByTopDownDiagonal(cells)))
+    .concat(matchWinner(cellValuesOrderedByBottomUpDiagonal(cells)))
+    .map(_ => R.head(_));
 
 export const actions: AppActions = {
   select: col => state => {
