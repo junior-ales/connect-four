@@ -12,7 +12,9 @@
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
+    "@types/ramda": "^0.25.18",
     "babel-plugin-transform-react-jsx": "^6.24.1",
+    "node-sass": "^4.7.2",
     "parcel-bundler": "^1.6.1",
     "prettier": "^1.10.2",
     "tslint": "^5.9.1",
@@ -21,7 +23,8 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "hyperapp": "^1.1.2"
+    "hyperapp": "^1.1.2",
+    "ramda": "^0.25.0"
   },
   "prettier": {
     "printWidth": 100,

@@ -1,0 +1,11 @@
+$size: 45px;
+
+.cell {
+    width: $size;
+    height: $size;
+    text-align: center;
+
+    &[data-value='0'] { background-color: gray; }
+    &[data-value='1'] { background-color: whitesmoke; }
+    &[data-value='2'] { background-color: black; }
+}

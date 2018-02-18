@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }
