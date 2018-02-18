@@ -28,5 +28,9 @@ interface GridProps {
 
 export const Grid = ({ cols, cells, select }: GridProps) => {
   const cellList = cells.map(cell => <Cell {...cell} select={select} />);
-  return <table>{splitEvery(cols, cellList).map(cs => <tr>{cs}</tr>)}</table>;
+  return (
+    <table class={'grid'}>
+      {splitEvery(cols, cellList).map(cs => <tr class={'grid-row'}>{cs}</tr>)}
+    </table>
+  );
 };

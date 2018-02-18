@@ -1,11 +1,72 @@
-$size: 100px;
+@mixin respond-to($media) {
+    @if $media == handhelds {
+      @media only screen and (max-width: 375px) { @content; }
+    }
+    @else if $media == medium-screens {
+      @media only screen and (min-width: 376px) { @content; }
+    }
+    @else if $media == wide-screens {
+      @media only screen and (min-width: 1025px) { @content; }
+    }
+  }
 
-.cell {
-    width: $size;
-    height: $size;
+body {
+    background-color: whitesmoke;
+    font-family: sans-serif;
+}
+
+.title {
+    color: lighten($color: black, $amount: 20%);
+    font-size: 1em;
     text-align: center;
 
-    &[data-value='0'] { background-color: gray; }
-    &[data-value='1'] { background-color: whitesmoke; }
-    &[data-value='2'] { background-color: blue; }
+    @include respond-to(medium-screens) {
+        font-size: 1.5em;
+    }
+}
+
+.grid {
+    padding: 0 15px;
+    width: 100%;
+    max-width: 895px;
+
+    @include respond-to(medium-screens) {
+        width: 80%;
+        padding: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @include respond-to(wide-screens) {
+        width: 65%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.grid-row {
+    width: 80%;
+}
+
+.cell {
+    height: 6em;
+    text-align: center;
+
+    &[data-value='0'] {
+        color: darken(blue, 15%);
+        background-color: darken(blue, 15%);
+    }
+    &[data-value='1'] {
+        color: yellow;
+        background-color: yellow;
+    }
+    &[data-value='2'] {
+        color: red;
+        background-color: red;
+    }
+}
+
+.winner {
+    font-weight: bold;
+    text-decoration: underline;
 }
