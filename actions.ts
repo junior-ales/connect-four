@@ -1,62 +1,62 @@
+import { Maybe, maybe } from 'folktale';
 import * as R from 'ramda';
 
 import { AppState, CellValue } from './index';
-
-const onlyMatchedCellsOfColumn = col => R.allPass([R.propEq('col', col), R.propEq('value', 0)]);
-
-const matchCell = (cell: CellValue): R.Pred =>
-  R.allPass([R.propEq('col', cell.col), R.propEq('row', cell.row)]);
-
-const findCellIndex = (cells: CellValue[]) => (cell: CellValue): number =>
-  R.findIndex(matchCell(cell), cells);
-
-const sortByHigherRow = (cells: CellValue[]): CellValue[] =>
-  R.sortBy<CellValue>(R.prop('row'), cells);
-
-const invalidCell: CellValue = {
-  col: Infinity,
-  row: Infinity,
-  value: 0
-};
-
-const lastCellInRow = (cells: CellValue[]): CellValue => {
-  const lastCell = R.last(cells);
-  return R.isNil(lastCell) ? invalidCell : lastCell;
-};
-
-const cellIndexInColumn = (col: number, cells: CellValue[]): number => {
-  const filterCells = R.filter<CellValue>(onlyMatchedCellsOfColumn(col));
-  const cellIndex = findCellIndex(cells);
-  return cellIndex(lastCellInRow(sortByHigherRow(filterCells(cells))));
-};
-
-const updateCell = (player: AppState['player']) => (cell?: CellValue): CellValue => {
-  if (R.isNil(cell)) {
-    return invalidCell;
-  } else {
-    return {
-      ...cell,
-      value: cell.value === 0 ? player : cell.value
-    };
-  }
-};
 
 export interface AppActions {
   select: (col: number) => (state: AppState) => AppState;
 }
 
+const matchCell = (cell: CellValue): R.Pred =>
+  R.allPass([R.propEq('col', cell.col), R.propEq('row', cell.row)]);
+
+const findCellIndex = (cells: CellValue[]) => (cell: CellValue): Maybe<number> => {
+  const index = R.findIndex(matchCell(cell), cells);
+  return index < 0 ? maybe.Nothing() : maybe.Just(index);
+};
+
+const sortByHigherRow = (cells: CellValue[]): CellValue[] =>
+  R.sortBy<CellValue>(R.prop('row'), cells);
+
+const lastCellInRow = (cells: CellValue[]): Maybe<CellValue> => maybe.fromNullable(R.last(cells));
+
+const maybeEmpty = <T>(xs: T[]): Maybe<T[]> => (R.isEmpty(xs) ? maybe.Nothing() : maybe.Just(xs));
+
+const matchColAndEmptyness = (col: number): R.Pred =>
+  R.allPass([R.propEq('col', col), cell => cell.value.equals(maybe.Nothing())]);
+
+const filterCellsAvailable = (col: number, cells: CellValue[]) =>
+  R.filter<CellValue>(matchColAndEmptyness(col), cells);
+
+const cellIndexInColumn = (col: number, cells: CellValue[]): Maybe<number> => {
+  return maybeEmpty(filterCellsAvailable(col, cells))
+    .map(sortByHigherRow)
+    .chain(lastCellInRow)
+    .chain(findCellIndex(cells));
+};
+
+const updateCell = (player: AppState['player']) => (cell?: CellValue): CellValue | null => {
+  return maybe
+    .fromNullable(cell)
+    .map(validCell => ({ ...validCell, value: maybe.Just(player) }))
+    .getOrElse(null);
+};
+
 export const actions: AppActions = {
   select: col => state => {
-    const cellIndex = cellIndexInColumn(col, state.cells);
+    const { player, cells } = state;
 
-    if (cellIndex < 0) {
-      return state;
-    } else {
-      return {
+    return cellIndexInColumn(col, cells)
+      .map(cellIndex => R.lensIndex(cellIndex))
+      .map(lens => [R.view(lens, cells), lens])
+      .chain(([cell, lens]: [CellValue | undefined, R.Lens]) =>
+        maybe.fromNullable(cell).map(_ => R.over(lens, updateCell(player), cells))
+      )
+      .map((updatedCells: CellValue[]): AppState => ({
         ...state,
-        player: state.player === 1 ? 2 : 1,
-        cells: R.over(R.lensIndex(cellIndex), updateCell(state.player), state.cells)
-      };
-    }
+        cells: updatedCells,
+        player: state.player === 1 ? 2 : 1
+      }))
+      .getOrElse(state);
   }
 };

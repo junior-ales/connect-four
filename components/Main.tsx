@@ -7,7 +7,7 @@ import { Header } from './Header';
 
 export const Main = (state: AppState, actions: AppActions) => (
   <main>
-    <Header player={state.player} />
+    <Header {...state} />
     <Grid {...state} select={actions.select} />
   </main>
 );

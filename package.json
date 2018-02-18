@@ -23,6 +23,7 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
+    "folktale": "3.0.0-alpha5",
     "hyperapp": "^1.1.2",
     "ramda": "^0.25.0"
   },
