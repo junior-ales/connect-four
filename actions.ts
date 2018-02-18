@@ -24,15 +24,10 @@ const lastCellInRow = (cells: CellValue[]): CellValue => {
   return R.isNil(lastCell) ? invalidCell : lastCell;
 };
 
-const lensCellInColumn = (col: number) => {
+const cellIndexInColumn = (col: number, cells: CellValue[]): number => {
   const filterCells = R.filter<CellValue>(onlyMatchedCellsOfColumn(col));
-
-  return (cells: CellValue[]): R.Lens => {
-    const cellIndex = findCellIndex(cells);
-    const index = cellIndex(lastCellInRow(sortByHigherRow(filterCells(cells))));
-
-    return R.lensIndex(index < 0 ? Infinity : index);
-  };
+  const cellIndex = findCellIndex(cells);
+  return cellIndex(lastCellInRow(sortByHigherRow(filterCells(cells))));
 };
 
 const updateCell = (player: AppState['player']) => (cell?: CellValue): CellValue => {
@@ -51,13 +46,17 @@ export interface AppActions {
 }
 
 export const actions: AppActions = {
-  select: col => {
-    const cellToUpdate = lensCellInColumn(col);
+  select: col => state => {
+    const cellIndex = cellIndexInColumn(col, state.cells);
 
-    return state => ({
-      ...state,
-      player: state.player === 1 ? 2 : 1,
-      cells: R.over(cellToUpdate(state.cells), updateCell(state.player), state.cells)
-    });
+    if (cellIndex < 0) {
+      return state;
+    } else {
+      return {
+        ...state,
+        player: state.player === 1 ? 2 : 1,
+        cells: R.over(R.lensIndex(cellIndex), updateCell(state.player), state.cells)
+      };
+    }
   }
 };
