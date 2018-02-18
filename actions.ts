@@ -1,7 +1,7 @@
 import { Maybe, maybe } from 'folktale';
 import * as R from 'ramda';
 
-import { AppState, CellValue } from './index';
+import { AppState, CellValue, PlayerId } from './index';
 
 export interface AppActions {
   select: (col: number) => (state: AppState) => AppState;
@@ -42,6 +42,32 @@ const updateCell = (player: AppState['player']) => (cell?: CellValue): CellValue
     .getOrElse(null);
 };
 
+// TODO Folktale maybe.fold is wrongly declared. As soon as it is
+// fixed change this to value.fold(R.always(0), R.idendity)
+const cellValueOrDefault = (cell: CellValue): 0 | PlayerId =>
+  cell.value.matchWith({ Just: data => data.value, Nothing: (): 0 => 0 });
+
+const orderByRow: (cells: CellValue[]) => string = R.compose(R.join(''), R.map(cellValueOrDefault));
+
+const orderByColumn: (cells: CellValue[]) => string = R.compose(
+  R.join(''),
+  R.map(cellValueOrDefault),
+  cells => R.sortWith<CellValue>([R.ascend(R.prop('col')), R.ascend(R.prop('row'))], cells)
+);
+
+const matchWinner: (values: string) => Maybe<PlayerId[]> = R.cond([
+  [R.test(/1111/), () => maybe.Just([1])],
+  [R.test(/2222/), () => maybe.Just([2])],
+  [R.T, () => maybe.Nothing()]
+]);
+
+const isThereWinner = (cells: CellValue[]): AppState['winner'] => {
+  const colWinner = matchWinner(orderByColumn(cells));
+  const rowWinner = matchWinner(orderByRow(cells));
+
+  return colWinner.concat(rowWinner).map(playerIds => R.head(playerIds));
+};
+
 export const actions: AppActions = {
   select: col => state => {
     const { player, cells } = state;
@@ -55,6 +81,7 @@ export const actions: AppActions = {
       .map((updatedCells: CellValue[]): AppState => ({
         ...state,
         cells: updatedCells,
+        winner: isThereWinner(updatedCells),
         player: state.player === 1 ? 2 : 1
       }))
       .getOrElse(state);

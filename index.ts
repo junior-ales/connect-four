@@ -7,7 +7,7 @@ import { Main } from './components/Main';
 
 import './styles/app.scss';
 
-type PlayerId = 1 | 2;
+export type PlayerId = 1 | 2;
 
 export interface CellValue {
   col: number;
