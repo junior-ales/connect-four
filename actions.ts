@@ -70,20 +70,24 @@ const isThereWinner = (cells: CellValue[]): AppState['winner'] => {
 
 export const actions: AppActions = {
   select: col => state => {
-    const { player, cells } = state;
+    const { player, cells, winner } = state;
 
-    return cellIndexInColumn(col, cells)
-      .map(cellIndex => R.lensIndex(cellIndex))
-      .map(lens => [R.view(lens, cells), lens])
-      .chain(([cell, lens]: [CellValue | undefined, R.Lens]) =>
-        maybe.fromNullable(cell).map(_ => R.over(lens, updateCell(player), cells))
-      )
-      .map((updatedCells: CellValue[]): AppState => ({
-        ...state,
-        cells: updatedCells,
-        winner: isThereWinner(updatedCells),
-        player: state.player === 1 ? 2 : 1
-      }))
-      .getOrElse(state);
+    return winner.matchWith({
+      Just: _ => state,
+      Nothing: () =>
+        cellIndexInColumn(col, cells)
+          .map(cellIndex => R.lensIndex(cellIndex))
+          .map(lens => [R.view(lens, cells), lens])
+          .chain(([cell, lens]: [CellValue | undefined, R.Lens]) =>
+            maybe.fromNullable(cell).map(_ => R.over(lens, updateCell(player), cells))
+          )
+          .map((updatedCells: CellValue[]): AppState => ({
+            ...state,
+            cells: updatedCells,
+            winner: isThereWinner(updatedCells),
+            player: state.player === 1 ? 2 : 1
+          }))
+          .getOrElse(state)
+    });
   }
 };
