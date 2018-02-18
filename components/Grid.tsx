@@ -8,9 +8,10 @@ interface CellProps extends CellValue {
   select: AppActions['select'];
 }
 
-const Cell = ({ value, id, select }: CellProps) => (
-  <td class={'cell'} onclick={() => select(id)} data-value={value}>
-    {value}
+const Cell = ({ col, row, value, select }: CellProps) => (
+  <td class={'cell'} onclick={() => select(col)} data-value={value}>
+    {col}
+    {row}
   </td>
 );
 

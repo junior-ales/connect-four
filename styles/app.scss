@@ -1,4 +1,4 @@
-$size: 45px;
+$size: 60px;
 
 .cell {
     width: $size;
@@ -7,5 +7,5 @@ $size: 45px;
 
     &[data-value='0'] { background-color: gray; }
     &[data-value='1'] { background-color: whitesmoke; }
-    &[data-value='2'] { background-color: black; }
+    &[data-value='2'] { background-color: blue; }
 }
