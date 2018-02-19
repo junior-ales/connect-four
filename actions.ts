@@ -62,11 +62,15 @@ const cellValuesOrderedByColumn: (cells: CellValue[]) => string = R.compose(
 );
 
 const cellValuesOrderedByTopDownDiagonal: (cells: CellValue[]) => string = R.compose(
+  (vals: string) => R.drop(6, vals), // necessary to remove false positives
+  (vals: string) => R.dropLast(6, vals), // necessary to remove false positives
   cellValuesOrderedByColumn,
   R.map(cell => (cell.row === 0 ? cell : { ...cell, col: cell.col - cell.row }))
 );
 
 const cellValuesOrderedByBottomUpDiagonal: (cells: CellValue[]) => string = R.compose(
+  (vals: string) => R.drop(6, vals), // necessary to remove false positives
+  (vals: string) => R.dropLast(6, vals), // necessary to remove false positives
   cellValuesOrderedByColumn,
   R.map(cell => (cell.row === 0 ? cell : { ...cell, col: cell.col + cell.row }))
 );
