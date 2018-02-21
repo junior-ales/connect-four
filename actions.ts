@@ -45,10 +45,8 @@ const updateCell = (player: AppState['player']) => (cell?: CellValue): CellValue
 const sortCellsByColAndRow = (cells: CellValue[]) =>
   R.sortWith<CellValue>([R.ascend(R.prop('col')), R.ascend(R.prop('row'))], cells);
 
-// TODO Folktale maybe.fold is wrongly declared. As soon as it is
-// fixed change this to value.fold(R.always(0), R.idendity)
 const cellValueOrDefault = (cell: CellValue): 0 | PlayerId =>
-  cell.value.matchWith({ Just: data => data.value, Nothing: (): 0 => 0 });
+  cell.value.fold(R.always<0>(0), R.identity);
 
 // the cells are ordered by row so we just need to get their values here
 const allCellValues: (cells: CellValue[]) => string = R.compose(
