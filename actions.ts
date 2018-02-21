@@ -61,16 +61,20 @@ const cellValuesOrderedByColumn: (cells: CellValue[]) => string = R.compose(
   sortCellsByColAndRow
 );
 
+// necessary to remove false positives
+const dropInvalidCorners: (s: string) => string = R.compose(
+  (s: string) => R.dropLast(6, s),
+  (s: string) => R.drop(6, s)
+);
+
 const cellValuesOrderedByTopDownDiagonal: (cells: CellValue[]) => string = R.compose(
-  (vals: string) => R.drop(6, vals), // necessary to remove false positives
-  (vals: string) => R.dropLast(6, vals), // necessary to remove false positives
+  dropInvalidCorners,
   cellValuesOrderedByColumn,
   R.map(cell => (cell.row === 0 ? cell : { ...cell, col: cell.col - cell.row }))
 );
 
 const cellValuesOrderedByBottomUpDiagonal: (cells: CellValue[]) => string = R.compose(
-  (vals: string) => R.drop(6, vals), // necessary to remove false positives
-  (vals: string) => R.dropLast(6, vals), // necessary to remove false positives
+  dropInvalidCorners,
   cellValuesOrderedByColumn,
   R.map(cell => (cell.row === 0 ? cell : { ...cell, col: cell.col + cell.row }))
 );
