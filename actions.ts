@@ -83,12 +83,17 @@ const matchWinner: (values: string) => Maybe<PlayerId[]> = R.cond([
   [R.T, () => maybe.Nothing()]
 ]);
 
-const isThereWinner = (cells: CellValue[]): AppState['winner'] =>
-  matchWinner(allCellValues(cells))
-    .concat(matchWinner(cellValuesOrderedByColumn(cells)))
-    .concat(matchWinner(cellValuesOrderedByTopDownDiagonal(cells)))
-    .concat(matchWinner(cellValuesOrderedByBottomUpDiagonal(cells)))
-    .map(_ => R.head(_));
+const updateWinner = (state: AppState): AppState => {
+  console.log('horizontal: ' + R.toString(allCellValues(state.cells))); // tslint:disable-line
+
+  return matchWinner(allCellValues(state.cells))
+    .concat(matchWinner(cellValuesOrderedByColumn(state.cells)))
+    .concat(matchWinner(cellValuesOrderedByTopDownDiagonal(state.cells)))
+    .concat(matchWinner(cellValuesOrderedByBottomUpDiagonal(state.cells)))
+    .map((ids: PlayerId[]) => R.head(ids))
+    .map(winner => ({ ...state, winner: maybe.Just(winner) }))
+    .getOrElse(state);
+};
 
 export const actions: AppActions = {
   select: col => state => {
@@ -106,9 +111,9 @@ export const actions: AppActions = {
           .map((updatedCells: CellValue[]): AppState => ({
             ...state,
             cells: updatedCells,
-            winner: isThereWinner(updatedCells),
             player: state.player === 1 ? 2 : 1
           }))
+          .map(updateWinner)
           .getOrElse(state)
     });
   }
