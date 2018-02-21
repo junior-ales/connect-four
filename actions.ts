@@ -48,14 +48,14 @@ const sortCellsByColAndRow = (cells: CellValue[]) =>
 const cellValueOrDefault = (cell: CellValue): 0 | PlayerId =>
   cell.value.fold(R.always<0>(0), R.identity);
 
-// the cells are ordered by row so we just need to get their values here
-const allCellValues: (cells: CellValue[]) => string = R.compose(
+// the cells are ordered by row
+const cellValuesOrdered: (cells: CellValue[]) => string = R.compose(
   R.join(''),
   R.map(cellValueOrDefault)
 );
 
 const cellValuesOrderedByColumn: (cells: CellValue[]) => string = R.compose(
-  allCellValues,
+  cellValuesOrdered,
   sortCellsByColAndRow
 );
 
@@ -83,16 +83,29 @@ const matchWinner: (values: string) => Maybe<PlayerId[]> = R.cond([
   [R.T, () => maybe.Nothing()]
 ]);
 
-const matchWinnerInRow = (state: AppState): Maybe<PlayerId[]> => {
-  const [m, ...ms] = R.map(matchWinner, R.splitEvery(state.cols, allCellValues(state.cells)));
-  return R.reduce((prev, curr) => prev.concat(curr), m, ms);
-};
+const matchWinnerInRow: (state: AppState) => Maybe<PlayerId[]> = R.compose(
+  ([m, ...ms]) => R.reduce((prev, curr) => prev.concat(curr), m, ms),
+  R.map(matchWinner),
+  state => R.splitEvery(state.cols, cellValuesOrdered(state.cells))
+);
+
+const matchWinnerInColumn: (state: AppState) => Maybe<PlayerId[]> = R.compose(
+  ([m, ...ms]) => R.reduce((prev, curr) => prev.concat(curr), m, ms),
+  R.map(matchWinner),
+  state => R.splitEvery(state.rows, cellValuesOrderedByColumn(state.cells))
+);
+
+const matchWinnerInTopDownDiagonal = (state: AppState): Maybe<PlayerId[]> =>
+  matchWinner(cellValuesOrderedByTopDownDiagonal(state.cells));
+
+const matchWinnerInBottomUpDiagonal = (state: AppState): Maybe<PlayerId[]> =>
+  matchWinner(cellValuesOrderedByBottomUpDiagonal(state.cells));
 
 const updateWinner = (state: AppState): AppState =>
   matchWinnerInRow(state)
-    .concat(matchWinner(cellValuesOrderedByColumn(state.cells)))
-    .concat(matchWinner(cellValuesOrderedByTopDownDiagonal(state.cells)))
-    .concat(matchWinner(cellValuesOrderedByBottomUpDiagonal(state.cells)))
+    .concat(matchWinnerInColumn(state))
+    .concat(matchWinnerInBottomUpDiagonal(state))
+    .concat(matchWinnerInTopDownDiagonal(state))
     .map((ids: PlayerId[]) => R.head(ids))
     .map(winner => ({ ...state, winner: maybe.Just(winner) }))
     .getOrElse(state);
