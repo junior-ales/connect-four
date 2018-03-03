@@ -65,13 +65,14 @@ body {
 }
 
 $cell-height: 6em;
+$cell-default-color: darken(blue, 15%);
 
 .cell {
     height: $cell-height;
     text-align: center;
     transition: all 0.4s ease-out;
-    color: darken(blue, 15%);
-    background-color: darken(blue, 15%);
+    color: $cell-default-color;
+    background-color: $cell-default-color;
 
     &[data-value='1'] {
         color: yellow;
@@ -106,5 +107,49 @@ $cell-height: 6em;
 
     @include respond-to(handhelds) {
         height: $cell-height * 0.55;
+    }
+}
+
+$footer-height: 4em;
+
+.footer {
+    min-height: $footer-height;
+    text-align: center;
+    font-size: .675em;
+
+    & > .new-game {
+        margin-top: $footer-height / 2;
+        margin-bottom: $footer-height / 2;
+        box-shadow:inset 0px 1px 0px 0px #97c4fe;
+        background:linear-gradient(to bottom, #3d94f6 5%, $cell-default-color 100%);
+        background-color:#3d94f6;
+        border-radius: .25em;
+        border:1px solid #337fed;
+        display:inline-block;
+        cursor:pointer;
+        color:#ffffff;
+        font-family: Arial;
+        font-size: 1.5em;
+        font-weight: bold;
+        padding: .5em 3em;
+        text-decoration: none;
+        text-shadow: 0px 1px 0px #1570cd;
+        outline: none;
+
+        &:hover {
+            background:linear-gradient(to bottom, $cell-default-color 5%, #3d94f6 100%);
+            background-color: $cell-default-color;
+            outline: none;
+        }
+
+        &:active {
+            position: relative;
+            top: 1px;
+            outline: none;
+        }
+    }
+
+    @include respond-to(medium-screens) {
+        font-size: 1em;
     }
 }

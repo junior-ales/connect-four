@@ -1,10 +1,11 @@
 import { Maybe, maybe } from 'folktale';
 import * as R from 'ramda';
 
-import { AppState, CellValue, PlayerId } from './index';
+import { AppState, CellValue, initialState, PlayerId } from './store';
 
 export interface AppActions {
   select: (col: number) => (state: AppState) => AppState;
+  newGame: () => (state: AppState) => AppState;
 }
 
 const matchCell = (cell: CellValue): R.Pred =>
@@ -111,6 +112,7 @@ const updateWinner = (state: AppState): AppState =>
     .getOrElse(state);
 
 export const actions: AppActions = {
+  newGame: () => _ => initialState,
   select: col => state => {
     const { player, cells, winner } = state;
 

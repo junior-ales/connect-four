@@ -1,6 +1,6 @@
 import { h } from 'hyperapp';
 
-import { AppState } from '../index';
+import { AppState } from '../store';
 
 interface HeaderProps {
   player: AppState['player'];

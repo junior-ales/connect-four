@@ -2,7 +2,7 @@ import { h } from 'hyperapp';
 import { always, identity, splitEvery } from 'ramda';
 
 import { AppActions } from '../actions';
-import { CellValue } from '../index';
+import { CellValue } from '../store';
 
 interface CellProps extends CellValue {
   select: AppActions['select'];
