@@ -98,7 +98,7 @@ $cell-height: 6em;
     &::after {
         content: '';
         display: block;
-        height: $cell-height * 0.35;
+        height: $cell-height * 0.30;
         position: relative;
         transition: all 0.4s ease-out;
         margin-top: -500px;
