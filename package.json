@@ -1,13 +1,13 @@
 {
   "name": "connect-four",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "author": "Junior Ales <edilson.ales.jr@gmail.com>",
   "license": "MIT",
   "private": false,
   "scripts": {
     "clean": "rm -Rf .cache/ dist/ | echo ''",
-    "publish": "sh ./publish.sh",
+    "deploy": "sh ./publish.sh $npm_package_version",
     "preprod": "yarn run clean",
     "prod": "parcel build ./index.html --public-url ./",
     "prestart": "yarn run clean",
