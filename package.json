@@ -7,8 +7,10 @@
   "private": false,
   "scripts": {
     "clean": "rm -Rf .cache/ dist/ | echo ''",
-    "predev": "yarn run clean",
-    "dev": "parcel index.html"
+    "preprod": "yarn run clean",
+    "prod": "parcel build ./index.html --public-url ./",
+    "prestart": "yarn run clean",
+    "start": "parcel index.html"
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
