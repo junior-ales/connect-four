@@ -1,9 +1,9 @@
 @mixin respond-to($media) {
     @if $media == handhelds {
-      @media only screen and (max-width: 375px) { @content; }
+      @media only screen and (max-width: 425px) { @content; }
     }
     @else if $media == medium-screens {
-      @media only screen and (min-width: 376px) { @content; }
+      @media only screen and (min-width: 426px) { @content; }
     }
     @else if $media == wide-screens {
       @media only screen and (min-width: 1025px) { @content; }
@@ -13,12 +13,24 @@
 body {
     background-color: whitesmoke;
     font-family: sans-serif;
+
+    @include respond-to(handhelds) {
+        margin: 0;
+    }
 }
 
 .title {
     color: lighten($color: black, $amount: 20%);
     font-size: 1em;
     text-align: center;
+    margin-top: 1em;
+
+    & > .winner {
+        transition: all 0.2s ease-in;
+        transform: scale(1.1);
+        font-weight: bold;
+        text-decoration: underline;
+    }
 
     @include respond-to(medium-screens) {
         font-size: 1.5em;
@@ -29,6 +41,10 @@ body {
     padding: 0 15px;
     width: 100%;
     max-width: 895px;
+
+    @include respond-to(handhelds) {
+        padding: 0;
+    }
 
     @include respond-to(medium-screens) {
         width: 80%;
@@ -48,8 +64,10 @@ body {
     width: 80%;
 }
 
+$cell-height: 6em;
+
 .cell {
-    height: 6em;
+    height: $cell-height;
     text-align: center;
     transition: all 0.4s ease-out;
     color: darken(blue, 15%);
@@ -80,14 +98,13 @@ body {
     &::after {
         content: '';
         display: block;
-        height: 4em;
+        height: $cell-height * 0.35;
         position: relative;
         transition: all 0.4s ease-out;
         margin-top: -500px;
     }
-}
 
-.winner {
-    font-weight: bold;
-    text-decoration: underline;
+    @include respond-to(handhelds) {
+        height: $cell-height * 0.55;
+    }
 }
